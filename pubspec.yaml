@@ -1,0 +1,35 @@
+name: sammlung
+description: Verzeichnisse für Musikalben, Bücher und mehr, mit Excel-Import und Statistik.
+publish_to: none
+version: 1.0.0+1
+
+environment:
+  sdk: ">=3.3.0 <4.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+  google_fonts: ^6.2.1
+  path_provider: ^2.1.4
+  file_picker: ^8.1.2
+  share_plus: ^10.1.4
+  xml: ^6.5.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^4.0.0
+  flutter_launcher_icons: ^0.14.1
+
+flutter:
+  uses-material-design: true
+
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: assets/icon/icon.png
+  adaptive_icon_background: "#1F3347"
+  adaptive_icon_foreground: assets/icon/icon_foreground.png
+  remove_alpha_ios: true
