@@ -202,6 +202,7 @@ class _ItemEditorState extends State<ItemEditor> {
     for (final e in widget.collection.extras)
       e.id: TextEditingController(text: widget.item?.extras[e.id] ?? ''),
   };
+  late final Map<String, int> ratings = Map<String, int>.of(widget.item?.ratings ?? {});
   late final List<String> groupNames = [
     for (final g in widget.collection.groups)
       if (!g.name.startsWith('(ohne ')) g.name,
@@ -249,6 +250,10 @@ class _ItemEditorState extends State<ItemEditor> {
     it.extras = {
       for (final e in extras.entries)
         if (e.value.text.trim().isNotEmpty) e.key: e.value.text.trim(),
+    };
+    it.ratings = {
+      for (final d in c.ratings)
+        if ((ratings[d.id] ?? 0) > 0) d.id: ratings[d.id]!,
     };
     if (widget.item == null) {
       store.addItem(c, it);
@@ -308,6 +313,44 @@ class _ItemEditorState extends State<ItemEditor> {
             decoration: InputDecoration(labelText: e.label, border: const OutlineInputBorder()),
           ),
         ],
+        const Divider(height: 32),
+        Row(children: [
+          Expanded(
+            child: Text('Bewertungen',
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
+          ),
+          if (c.ratings.isEmpty)
+            TextButton(
+              onPressed: () async {
+                await Navigator.push(
+                    context, MaterialPageRoute(builder: (_) => RatingsPage(collectionId: c.id)));
+                if (mounted) setState(() {});
+              },
+              child: const Text('Anlegen'),
+            ),
+        ]),
+        if (c.ratings.isEmpty)
+          Text('Noch keine Bewertungen angelegt.', style: Theme.of(context).textTheme.bodySmall),
+        for (final d in c.ratings)
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 2),
+            child: Row(children: [
+              CircleAvatar(
+                radius: 14,
+                backgroundColor: Color(d.color),
+                child: Text(d.letter,
+                    style: const TextStyle(
+                        color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13)),
+              ),
+              const SizedBox(width: 10),
+              Expanded(child: Text(d.name, style: const TextStyle(fontSize: 15))),
+              StarRow(
+                value: ratings[d.id] ?? 0,
+                color: Color(d.color),
+                onChanged: (v) => setState(() => ratings[d.id] = v),
+              ),
+            ]),
+          ),
         const SizedBox(height: 20),
         FilledButton.icon(onPressed: save, icon: const Icon(Icons.check), label: const Text('Speichern')),
       ]),

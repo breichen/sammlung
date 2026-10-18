@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'models.dart';
+import 'ratings_page.dart';
 import 'store.dart';
 import 'widgets.dart';
 
@@ -31,6 +32,32 @@ class _CollectionEditorState extends State<CollectionEditor> {
   late final List<_ExtraRow> extraRows = [
     for (final e in c?.extras ?? <ExtraField>[]) _ExtraRow(e.id, e.label),
   ];
+  // Arbeitskopien: Änderungen gelten erst mit "Speichern"
+  late final List<RatingDef> ratingRows = [
+    for (final r in c?.ratings ?? <RatingDef>[]) RatingDef(r.id, r.name, r.letter, r.color),
+  ];
+
+  Future<void> editRating(RatingDef? r) async {
+    final used = {for (final x in ratingRows) if (x != r) x.letter.toUpperCase()};
+    final res = await showDialog<(String, String, int)>(
+      context: context,
+      builder: (_) => RatingDialog(
+        existing: r,
+        used: used,
+        defaultColor: ratingPalette[ratingRows.length % ratingPalette.length],
+      ),
+    );
+    if (res == null) return;
+    setState(() {
+      if (r == null) {
+        ratingRows.add(RatingDef(store.newId(), res.$1, res.$2, res.$3));
+      } else {
+        r.name = res.$1;
+        r.letter = res.$2;
+        r.color = res.$3;
+      }
+    });
+  }
 
   @override
   void dispose() {
@@ -74,6 +101,7 @@ class _CollectionEditorState extends State<CollectionEditor> {
         yearLabel: yl,
         usageLabel: ul,
         extras: extras,
+        ratings: ratingRows,
       );
       store.addCollection(nc);
       Navigator.pop(context, nc.id);
@@ -86,7 +114,8 @@ class _CollectionEditorState extends State<CollectionEditor> {
         ..titleLabel = tl
         ..yearLabel = yl
         ..usageLabel = ul
-        ..extras = extras;
+        ..extras = extras
+        ..ratings = ratingRows;
       store.schemaChanged(c!);
       Navigator.pop(context);
     }
@@ -167,6 +196,35 @@ class _CollectionEditorState extends State<CollectionEditor> {
             onPressed: () => setState(() => extraRows.add(_ExtraRow(null, ''))),
             icon: const Icon(Icons.add),
             label: const Text('Zusatzfeld hinzufügen'),
+          ),
+        ),
+        const Divider(height: 32),
+        Text('Bewertungen', style: Theme.of(context).textTheme.titleMedium),
+        const SizedBox(height: 2),
+        Text('Jede Bewertung hat 1 bis 5 Sterne, einen Namen, einen Buchstaben und eine Farbe '
+            '(z. B. „Redaktion“ mit R, „Leser“ mit L).',
+            style: Theme.of(context).textTheme.bodySmall),
+        for (final r in ratingRows)
+          ListTile(
+            contentPadding: EdgeInsets.zero,
+            leading: CircleAvatar(
+              backgroundColor: Color(r.color),
+              child: Text(r.letter,
+                  style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+            ),
+            title: Text(r.name),
+            trailing: IconButton(
+              icon: const Icon(Icons.delete_outline),
+              onPressed: () => setState(() => ratingRows.remove(r)),
+            ),
+            onTap: () => editRating(r),
+          ),
+        Align(
+          alignment: Alignment.centerLeft,
+          child: TextButton.icon(
+            onPressed: () => editRating(null),
+            icon: const Icon(Icons.add),
+            label: const Text('Bewertung hinzufügen'),
           ),
         ),
         const SizedBox(height: 10),

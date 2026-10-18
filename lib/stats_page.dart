@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'group_page.dart';
 import 'item_page.dart';
 import 'models.dart';
+import 'ratings_page.dart';
 import 'widgets.dart';
+import 'year_page.dart';
 
 Widget _card(BuildContext context, String title, Widget child) => Card(
       elevation: 0,
@@ -64,15 +66,20 @@ class StatsTab extends StatelessWidget {
     final recent = c.items.where((i) => i.listens.isNotEmpty).toList()
       ..sort((a, b) => b.lastListen!.compareTo(a.lastListen!));
 
+    // am häufigsten benutzt
+    final most = c.items.where((i) => i.listens.isNotEmpty).toList()
+      ..sort((a, b) {
+        final d = b.listens.length.compareTo(a.listens.length);
+        return d != 0 ? d : b.lastListen!.compareTo(a.lastListen!);
+      });
+
     return ListView(padding: const EdgeInsets.all(10), children: [
       Padding(
         padding: const EdgeInsets.only(bottom: 8),
         child: Row(children: [
           _tile(context, fmtInt(c.items.length), 'Einträge'),
           if (c.hasGroup) _tile(context, fmtInt(c.groups.length), c.groupsName),
-          if (c.hasYear && years.isNotEmpty)
-            _tile(context, '${years.keys.reduce((a, b) => a < b ? a : b)}–${years.keys.reduce((a, b) => a > b ? a : b)}',
-                'Zeitraum'),
+          if (c.hasYear && years.isNotEmpty) _tile(context, fmtInt(years.length), 'Jahre'),
         ]),
       ),
       if (c.hasYear)
@@ -80,7 +87,13 @@ class StatsTab extends StatelessWidget {
           context,
           'Einträge pro Jahr',
           Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            YearHistogram(counts: years, unit: c.name),
+            YearHistogram(
+              counts: years,
+              unit: c.name,
+              onShow: (y) => Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => YearPage(collectionId: c.id, year: y))),
+            ),
             if (withYear < c.items.length)
               Padding(
                 padding: const EdgeInsets.only(top: 6),
@@ -160,6 +173,53 @@ class StatsTab extends StatelessWidget {
                   ]),
                 );
               }),
+          ]),
+        ),
+      Align(
+        alignment: Alignment.centerLeft,
+        child: TextButton.icon(
+          onPressed: () => Navigator.push(
+              context, MaterialPageRoute(builder: (_) => RatingsPage(collectionId: c.id))),
+          icon: const Icon(Icons.star_half),
+          label: Text(c.ratings.isEmpty ? 'Bewertungen anlegen' : 'Bewertungen verwalten'),
+        ),
+      ),
+      if (most.isNotEmpty)
+        _card(
+          context,
+          'Meist ${c.usageLabel.toLowerCase()}',
+          Column(children: [
+            for (var i = 0; i < most.length && i < 10; i++)
+              InkWell(
+                onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (_) => ItemPage(collectionId: c.id, itemId: most[i].id))),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 6),
+                  child: Row(children: [
+                    SizedBox(
+                      width: 26,
+                      child: Text('${i + 1}.', style: Theme.of(context).textTheme.bodySmall),
+                    ),
+                    Expanded(
+                      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                        Text(most[i].title,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(fontWeight: FontWeight.w600)),
+                        if (c.hasGroup && most[i].group.isNotEmpty)
+                          Text(most[i].group,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: Theme.of(context).textTheme.bodySmall),
+                      ]),
+                    ),
+                    Text('${most[i].listens.length}×',
+                        style: const TextStyle(fontWeight: FontWeight.bold)),
+                  ]),
+                ),
+              ),
           ]),
         ),
       if (recent.isNotEmpty)

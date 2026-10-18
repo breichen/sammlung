@@ -21,7 +21,9 @@ flutter run --release
 - **Interpreten:** Liste aller Gruppen mit Anzahl, ebenfalls mit Buchstabenleiste und Filter. Die Gruppenseite zeigt alle Einträge und ein Histogramm über die Jahre (Balken antippen zeigt die Anzahl).
 - **Eintragsseite:** Bewertungen per Sterne vergeben (erneut auf den Stern tippen löscht), und „Jetzt gehört" (bzw. gelesen, gesehen …) einträgt mit aktuellem Zeitpunkt. „Anderer Zeitpunkt" erlaubt Datum und Uhrzeit. Die Einträge lassen sich einzeln löschen.
 - **Statistik:** Histogramm über die Jahre, Interpreten mit den meisten Einträgen, Durchschnitt je Bewertung und die zuletzt gehörten Einträge.
-- **Bewertungen:** Im Menü „Bewertungen verwalten": beliebig viele Arten mit Name, Buchstabe und Farbe, jeweils 1 bis 5 Sterne. In der Liste erscheinen sie als farbige Marken wie „R★3".
+- **Bewertungen:** Beliebig viele Arten mit Name, Buchstabe und Farbe, jeweils 1 bis 5 Sterne. Anlegen kannst du sie unter „Verzeichnis bearbeiten" (Abschnitt Bewertungen), im Menü „Bewertungen verwalten", auf der Statistikseite, beim Anlegen eines eigenen Typs oder beim Bearbeiten eines Eintrags. Beim Anlegen und Ändern eines Eintrags setzt du die Sterne direkt mit. In der Liste erscheinen sie als farbige Marken wie „R★3".
+- **Hörzähler:** In der Liste steht neben dem Jahr, wie oft ein Eintrag benutzt wurde (nur wenn mindestens einmal). Die Statistik zeigt die Meistgehörten.
+- **Jahre:** Ein Tipp auf einen Balken im Histogramm zeigt die Anzahl, „Anzeigen" listet alle Einträge dieses Jahres.
 
 ## Excel-Import und -Export
 

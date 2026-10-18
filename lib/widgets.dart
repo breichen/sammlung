@@ -118,8 +118,19 @@ class ItemRow extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              if (c.hasYear && item.year != null)
-                Text('${item.year}', style: const TextStyle(color: Colors.black54, fontSize: 13)),
+              if (item.listens.isNotEmpty || (c.hasYear && item.year != null))
+                Row(mainAxisSize: MainAxisSize.min, children: [
+                  if (item.listens.isNotEmpty) ...[
+                    const Icon(Icons.play_circle_outline, size: 14, color: Colors.black45),
+                    const SizedBox(width: 2),
+                    Text('${item.listens.length}×',
+                        style: const TextStyle(color: Colors.black54, fontSize: 13)),
+                    const SizedBox(width: 8),
+                  ],
+                  if (c.hasYear && item.year != null)
+                    Text('${item.year}',
+                        style: const TextStyle(color: Colors.black54, fontSize: 13)),
+                ]),
               if (item.ratings.isNotEmpty)
                 Padding(
                   padding: const EdgeInsets.only(top: 3),
@@ -263,7 +274,14 @@ class YearHistogram extends StatefulWidget {
   final Map<int, int> counts;
   final String unit;
   final double barWidth;
-  const YearHistogram({super.key, required this.counts, required this.unit, this.barWidth = 14});
+  final ValueChanged<int>? onShow; // zeigt die Einträge des gewählten Jahres
+  const YearHistogram({
+    super.key,
+    required this.counts,
+    required this.unit,
+    this.barWidth = 14,
+    this.onShow,
+  });
 
   @override
   State<YearHistogram> createState() => _YearHistogramState();
@@ -303,13 +321,25 @@ class _YearHistogramState extends State<YearHistogram> {
       final width = math.max(cons.maxWidth, n * widget.barWidth);
       final bw = width / n;
       return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Text(
-          sel == null
-              ? 'Tippe auf einen Balken'
-              : '${minY + sel}: ${counts[minY + sel] ?? 0} ${widget.unit}',
-          style: const TextStyle(fontWeight: FontWeight.bold),
+        SizedBox(
+          height: 40,
+          child: Row(children: [
+            Expanded(
+              child: Text(
+                sel == null
+                    ? 'Tippe auf einen Balken'
+                    : '${minY + sel}: ${counts[minY + sel] ?? 0} ${widget.unit}',
+                style: const TextStyle(fontWeight: FontWeight.bold),
+              ),
+            ),
+            if (sel != null && widget.onShow != null && (counts[minY + sel] ?? 0) > 0)
+              TextButton.icon(
+                onPressed: () => widget.onShow!(minY + sel),
+                icon: const Icon(Icons.list, size: 18),
+                label: const Text('Anzeigen'),
+              ),
+          ]),
         ),
-        const SizedBox(height: 6),
         SizedBox(
           height: 150,
           child: SingleChildScrollView(

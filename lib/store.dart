@@ -197,8 +197,10 @@ class Store extends ChangeNotifier {
   /// Nach Änderungen am Aufbau eines Verzeichnisses (Bezeichnungen, Zusatzfelder, Gruppierung).
   void schemaChanged(Collection c) {
     final ids = c.extras.map((e) => e.id).toSet();
+    final ratingIds = c.ratings.map((r) => r.id).toSet();
     for (final it in c.items) {
       it.extras.removeWhere((k, _) => !ids.contains(k));
+      it.ratings.removeWhere((k, _) => !ratingIds.contains(k));
     }
     c.reindexAll();
     changed();

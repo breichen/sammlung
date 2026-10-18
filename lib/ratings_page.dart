@@ -12,7 +12,7 @@ class RatingsPage extends StatelessWidget {
     final used = {for (final x in c.ratings) if (x != r) x.letter.toUpperCase()};
     final res = await showDialog<(String, String, int)>(
       context: context,
-      builder: (_) => _RatingDialog(existing: r, used: used, defaultColor: ratingPalette[c.ratings.length % ratingPalette.length]),
+      builder: (_) => RatingDialog(existing: r, used: used, defaultColor: ratingPalette[c.ratings.length % ratingPalette.length]),
     );
     if (res == null) return;
     if (r == null) {
@@ -78,16 +78,16 @@ class RatingsPage extends StatelessWidget {
       );
 }
 
-class _RatingDialog extends StatefulWidget {
+class RatingDialog extends StatefulWidget {
   final RatingDef? existing;
   final Set<String> used;
   final int defaultColor;
-  const _RatingDialog({this.existing, required this.used, required this.defaultColor});
+  const RatingDialog({super.key, this.existing, required this.used, required this.defaultColor});
   @override
-  State<_RatingDialog> createState() => _RatingDialogState();
+  State<RatingDialog> createState() => _RatingDialogState();
 }
 
-class _RatingDialogState extends State<_RatingDialog> {
+class _RatingDialogState extends State<RatingDialog> {
   late final name = TextEditingController(text: widget.existing?.name ?? '');
   late final letter = TextEditingController(text: widget.existing?.letter ?? '');
   late int color = widget.existing?.color ?? widget.defaultColor;
